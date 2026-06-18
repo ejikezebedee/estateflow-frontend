@@ -52,9 +52,12 @@ export type Listing = {
 export type SavedSearch = {
   id: string;
   name: string;
+  filters?: Record<string, unknown>;
   query?: string;
   alertFrequency?: "instant" | "daily" | "weekly" | "off";
   frequency?: "instant" | "daily" | "weekly" | "off";
+  notificationFrequency?: "instant" | "daily" | "weekly" | "off";
+  notificationsEnabled?: boolean;
 };
 
 export type MessageThread = {

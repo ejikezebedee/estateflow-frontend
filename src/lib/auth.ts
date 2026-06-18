@@ -17,7 +17,7 @@ export function setSession(payload: { accessToken?: string; token?: string; refr
   const token = payload.accessToken ?? payload.token;
   if (token) sessionStorage.setItem(tokenKey, token);
   if (payload.refreshToken) localStorage.setItem(refreshKey, payload.refreshToken);
-  if (payload.user) localStorage.setItem(userKey, JSON.stringify(payload.user));
+  if (payload.user) localStorage.setItem(userKey, JSON.stringify({ ...payload.user, role: payload.user.role.toLowerCase() }));
   window.dispatchEvent(new Event("estateflow-auth"));
 }
 

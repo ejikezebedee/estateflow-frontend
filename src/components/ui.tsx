@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
 import { cls } from "../lib/format";
 
 export function Button({ className, variant = "primary", ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "accent" | "outline" | "ghost" }) {
@@ -21,17 +21,17 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
   return <div className={cls("rounded-lg border bg-white shadow-sm", className)}>{children}</div>;
 }
 
-export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className={cls("h-11 w-full rounded-md border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-sea", props.className)} />;
-}
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input(props, ref) {
+  return <input ref={ref} {...props} className={cls("h-11 w-full rounded-md border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-sea", props.className)} />;
+});
 
-export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...props} className={cls("h-11 w-full rounded-md border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-sea", props.className)} />;
-}
+export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(function Select(props, ref) {
+  return <select ref={ref} {...props} className={cls("h-11 w-full rounded-md border bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-sea", props.className)} />;
+});
 
-export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea {...props} className={cls("min-h-28 w-full rounded-md border bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sea", props.className)} />;
-}
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(function Textarea(props, ref) {
+  return <textarea ref={ref} {...props} className={cls("min-h-28 w-full rounded-md border bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sea", props.className)} />;
+});
 
 export function Shell({ children }: { children: ReactNode }) {
   return <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>;

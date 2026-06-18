@@ -37,6 +37,12 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return payload as T;
 }
 
+type SessionPayload = { accessToken?: string; token?: string; refreshToken?: string; user?: User };
+
+function normalizeSession(result: SessionPayload): SessionPayload {
+  return result.user ? { ...result, user: { ...result.user, role: result.user.role.toLowerCase() as User["role"] } } : result;
+}
+
 export function normalizeList<T>(payload: Paged<T> | T[]): { items: T[]; total?: number; page?: number; totalPages?: number } {
   if (Array.isArray(payload)) return { items: payload };
   return {
@@ -47,29 +53,61 @@ export function normalizeList<T>(payload: Paged<T> | T[]): { items: T[]; total?:
   };
 }
 
+type FavouriteRecord = Listing | { listing?: Listing };
+
+function unwrapFavourite(item: FavouriteRecord): Listing | undefined {
+  if ("listing" in item) return item.listing;
+  const listing = item as Listing;
+  return typeof listing.id === "string" && typeof listing.slug === "string" ? listing : undefined;
+}
+
 export const api = {
   baseUrl: API_BASE,
   register: async (body: { name: string; email: string; password: string; role: string }) => {
-    const result = await request<{ accessToken?: string; token?: string; refreshToken?: string; user?: User }>("/auth/register", { method: "POST", body: JSON.stringify(body) });
+    const [firstName, ...rest] = body.name.trim().split(/\s+/);
+    const result = normalizeSession(await request<SessionPayload>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        email: body.email,
+        password: body.password,
+        role: body.role.toUpperCase(),
+        firstName,
+        lastName: rest.join(" ") || undefined
+      })
+    }));
     setSession(result);
     return result;
   },
   login: async (body: { email: string; password: string }) => {
-    const result = await request<{ accessToken?: string; token?: string; refreshToken?: string; user?: User }>("/auth/login", { method: "POST", body: JSON.stringify(body) });
+    const result = normalizeSession(await request<SessionPayload>("/auth/login", { method: "POST", body: JSON.stringify(body) }));
     setSession(result);
     return result;
   },
   me: () => request<User>("/me"),
   searchProperties: (params: URLSearchParams) => request<Paged<Listing> | Listing[]>(`/search/properties?${params.toString()}`),
   listing: (slug: string) => request<Listing>(`/listings/${slug}`),
-  favourites: () => request<Paged<Listing> | Listing[]>("/favourites"),
+  favourites: async (): Promise<Paged<Listing> | Listing[]> => {
+    const payload = await request<Paged<FavouriteRecord> | FavouriteRecord[]>("/favourites");
+    if (Array.isArray(payload)) return payload.map(unwrapFavourite).filter((item): item is Listing => Boolean(item));
+    const normalized = normalizeList(payload);
+    const items = normalized.items.map(unwrapFavourite).filter((item): item is Listing => Boolean(item));
+    return { data: items, items, total: normalized.total, page: normalized.page, totalPages: normalized.totalPages };
+  },
   saveFavourite: (id: string) => request<void>(`/favourites/${id}`, { method: "POST" }),
   unsaveFavourite: (id: string) => request<void>(`/favourites/${id}`, { method: "DELETE" }),
   savedSearches: () => request<Paged<SavedSearch> | SavedSearch[]>("/saved-searches"),
-  createSavedSearch: (body: Partial<SavedSearch>) => request<SavedSearch>("/saved-searches", { method: "POST", body: JSON.stringify(body) }),
+  createSavedSearch: (body: Partial<SavedSearch>) => request<SavedSearch>("/saved-searches", {
+    method: "POST",
+    body: JSON.stringify({
+      name: body.name,
+      filters: body.filters ?? {},
+      notificationsEnabled: body.alertFrequency !== "off",
+      notificationFrequency: body.alertFrequency
+    })
+  }),
   updateSavedSearch: (id: string, body: Partial<SavedSearch>) => request<SavedSearch>(`/saved-searches/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   deleteSavedSearch: (id: string) => request<void>(`/saved-searches/${id}`, { method: "DELETE" }),
-  contactProvider: (id: string, body: unknown) => request<{ id: string }>(`/listings/${id}/contact`, { method: "POST", body: JSON.stringify(body) }),
+  contactProvider: (id: string, body: { message: string }) => request<{ id: string }>(`/listings/${id}/contact`, { method: "POST", body: JSON.stringify({ message: body.message }) }),
   threads: () => request<Paged<MessageThread> | MessageThread[]>("/messages/threads"),
   thread: (id: string) => request<MessageThread>(`/messages/threads/${id}`),
   sendMessage: (id: string, body: string) => request<void>(`/messages/threads/${id}/messages`, { method: "POST", body: JSON.stringify({ body }) }),

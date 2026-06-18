@@ -8,11 +8,11 @@ Frontend URL:
 
 Backend API URL:
 
-`http://localhost:3000/api/v1`
+`http://localhost:3001/api/v1`
 
 Swagger URL:
 
-`http://localhost:3000/api/docs`
+`http://localhost:3001/api/docs`
 
 ## Endpoints Used
 
@@ -42,14 +42,8 @@ Swagger URL:
 
 All paths are resolved under `VITE_API_BASE_URL`.
 
-## Contract Gaps To Confirm
+## Remaining UX Gaps
 
-- Exact pagination envelope for search, favourites, saved searches, provider listings, and admin queues.
-- Exact login/register response token fields.
-- Listing draft/create/update/submit endpoints.
-- Listing photo metadata and local signed upload behavior.
-- Provider pause/archive/duplicate endpoints.
-- Report listing endpoint, if any.
-- Viewing appointment endpoints, if any.
-- Profile/application/document endpoints, if any.
-- Admin users, featured listing, and audit log endpoints, if any.
+- Listing wizard submit needs a full listing creation UX pass.
+- Report listing is intentionally disabled in the UI.
+- Viewing appointment and document-upload workflows are not exposed in this frontend package.

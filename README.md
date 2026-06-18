@@ -7,23 +7,16 @@ Vite + React + TypeScript frontend for the EstateFlow real-estate marketplace.
 Expected backend API:
 
 ```bash
-VITE_API_BASE_URL=http://localhost:3000/api/v1
+VITE_API_BASE_URL=http://localhost:3001/api/v1
 ```
 
-The frontend is designed for Emeka's backend handoff and uses the endpoint list from `Codex-front.txt22.txt`. The requested OpenAPI file was not available in this workspace:
-
-```bash
-./estateflow-backend/docs/openapi.json
-./estateflow-backend/FRONTEND_HANDOFF.md
-```
-
-When those files are available, reconcile `src/lib/api.ts` with the generated OpenAPI client.
+The frontend is verified against the EstateFlow backend running on port 3001.
 
 ## Run
 
 ```bash
 npm install
-npm run dev
+npm run dev -- --host 127.0.0.1 --port 5173
 npm run typecheck
 npm run lint
 npm run build
@@ -58,6 +51,6 @@ Use password `Password123!` when Emeka's backend is running:
 
 ## Notes
 
-- Report listing is disabled because no report endpoint was listed.
-- Listing draft/update/submit/upload endpoints were not listed, so the wizard is implemented with controlled disabled submit state.
+- Report listing is disabled in the UI even though backend moderation/reporting APIs exist.
+- Listing wizard submit remains disabled pending a full listing creation UX pass.
 - Binary upload is not presented as fully live S3 because the handoff says local upload URLs are placeholder signed URLs.

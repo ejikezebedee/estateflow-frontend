@@ -12,7 +12,10 @@ export function SavedSearchControl() {
   const location = useLocation();
   const queryClient = useQueryClient();
   const saved = useQuery({ queryKey: ["saved-searches"], queryFn: api.savedSearches, enabled: open });
-  const create = useMutation({ mutationFn: () => api.createSavedSearch({ name, query: location.search.replace(/^\?/, ""), alertFrequency }), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["saved-searches"] }) });
+  const create = useMutation({
+    mutationFn: () => api.createSavedSearch({ name, filters: Object.fromEntries(new URLSearchParams(location.search)), alertFrequency }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["saved-searches"] })
+  });
   const remove = useMutation({ mutationFn: (id: string) => api.deleteSavedSearch(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["saved-searches"] }) });
   const items = saved.data ? normalizeList(saved.data).items : [];
 
