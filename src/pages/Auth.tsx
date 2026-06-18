@@ -16,7 +16,7 @@ export function Auth({ mode }: { mode: "login" | "register" }) {
     mutationFn: (values: RegisterValues) => mode === "login" ? api.login(values) : api.register(values),
     onSuccess: (result) => {
       const role = result.user?.role;
-      navigate(role === "admin" ? "/admin" : role === "landlord" || role === "agent" ? "/provider" : "/dashboard");
+      navigate(role === "admin" ? "/zebeclaw" : role === "landlord" || role === "agent" ? "/provider" : "/dashboard");
     }
   });
 
@@ -32,7 +32,6 @@ export function Auth({ mode }: { mode: "login" | "register" }) {
           <Button disabled={mutation.isPending}>{mutation.isPending ? "Please wait" : mode === "login" ? "Login" : "Register"}</Button>
           {mutation.isError && <p className="text-sm text-red-600">{mutation.error.message}</p>}
         </form>
-        {mode === "login" && <p className="mt-4 text-sm text-slate-600">Seed password: <strong>Password123!</strong>. Forgot/reset password is disabled until those endpoints are documented.</p>}
         <Link className="mt-4 block text-sm font-bold text-sea" to={mode === "login" ? "/register" : "/login"}>{mode === "login" ? "Create account" : "Already have an account?"}</Link>
       </Card>
     </Shell>

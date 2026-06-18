@@ -25,11 +25,29 @@ const tabs: Array<{ id: AdminTab; label: string; icon: typeof Gauge }> = [
 const unsupportedControls = [
   ["CMS editor", "CMS persistence model is not implemented yet."],
   ["SEO metadata editor", "SEO metadata persistence model is not implemented yet."],
-  ["Email notification templates", "EMAIL_DELIVERY_STATUS=PLACEHOLDER_OR_NOT_CONFIGURED until SMTP/template backend is configured."],
+  ["Email notification templates", "Placeholder / not configured until SMTP/template backend is configured."],
   ["Support tickets", "Support ticket model is not implemented yet."],
   ["Private document viewing", "Blocked by privacy policy unless a specific authorized review flow is implemented."],
-  ["Service restart", "No approved ops-control system exists for website-triggered restarts."]
+  ["Service restart", "Disabled - no approved ops control."]
 ];
+
+const friendlyLabels: Record<string, string> = {
+  siteName: "Site name",
+  supportEmail: "Support email",
+  contactEmail: "Contact email",
+  defaultCurrency: "Default currency",
+  defaultCountry: "Default country",
+  defaultLanguage: "Default language",
+  registrationEnabled: "Registration enabled",
+  providerRegistrationEnabled: "Provider registration enabled",
+  maintenanceBannerEnabled: "Maintenance banner enabled",
+  maxImagesPerListing: "Maximum images per listing",
+  maxUploadSizeMb: "Maximum upload size MB",
+  allowedImageTypes: "Allowed image types",
+  emailDeliveryStatus: "Email delivery status",
+  serviceRestartFromDashboard: "Service restart from dashboard",
+  sensitiveEnvironmentValues: "Sensitive environment values"
+};
 
 const rejectReasons = [
   "Incomplete property details",
@@ -119,12 +137,12 @@ export function Admin() {
         <section className="min-w-0">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-sm font-bold uppercase text-sea">ZebeEstate / EstateFlow</p>
+              <p className="text-sm font-bold uppercase text-sea">ZEBEESTATE CONTROL</p>
               <h2 className="text-3xl font-black">Admin operational control center</h2>
             </div>
-            <div className="flex items-center gap-2 rounded-lg border bg-white px-3">
+            <div className="flex w-full items-center gap-2 rounded-lg border bg-white px-3 md:w-[28rem]">
               <Search size={18} className="text-slate-400" />
-              <Input className="border-0 focus:ring-0" placeholder="Search users, listings, reports" value={query} onChange={(event) => setQuery(event.target.value)} />
+              <Input className="border-0 focus:ring-0" placeholder="Search users and listings" value={query} onChange={(event) => setQuery(event.target.value)} />
             </div>
           </div>
 
@@ -158,7 +176,7 @@ export function Admin() {
               <Card className="p-5">
                 <h3 className="text-lg font-black">Platform health indicators</h3>
                 <div className="mt-4 grid gap-3 md:grid-cols-4">
-                  {Object.entries((metrics.data?.platformHealth ?? {}) as AnyRecord).map(([key, value]) => <Status key={key} label={key} value={String(value)} />)}
+                  {Object.entries((metrics.data?.platformHealth ?? {}) as AnyRecord).map(([key, value]) => <Status key={key} label={friendlyLabel(key)} value={displayValue(key, value)} />)}
                 </div>
               </Card>
             </div>
@@ -214,7 +232,7 @@ export function Admin() {
 
           {tab === "security" && (
             <Panel title="Security dashboard">
-              {health.isLoading ? <Skeleton /> : <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{flattenHealth(health.data).map(([key, value]) => <Status key={key} label={key} value={value} />)}</div>}
+              {health.isLoading ? <Skeleton /> : <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{flattenHealth(health.data).map(([key, value]) => <Status key={key} label={friendlyLabel(key)} value={displayValue(key, value)} />)}</div>}
               <div className="mt-5 grid gap-3 md:grid-cols-3">
                 <Button disabled variant="outline" title="Session revocation endpoint is not implemented yet">Revoke sessions disabled</Button>
                 <Button disabled variant="outline" title="Force-reset endpoint is not implemented yet">Force reset disabled</Button>
@@ -228,7 +246,7 @@ export function Admin() {
               <div className="grid gap-4 lg:grid-cols-2">
                 <Card className="p-5">
                   <h3 className="font-black">Safe platform settings</h3>
-                  <div className="mt-4 grid gap-3">{Object.entries((settings.data?.values ?? {}) as AnyRecord).map(([key, value]) => <Status key={key} label={key} value={String(value)} />)}</div>
+                  <div className="mt-4 grid gap-3">{Object.entries((settings.data?.values ?? {}) as AnyRecord).map(([key, value]) => <Status key={key} label={friendlyLabel(key)} value={displayValue(key, value)} />)}</div>
                   <Button className="mt-4" disabled title="Persistent settings store is not implemented yet">Save settings disabled</Button>
                 </Card>
                 <Card className="p-5">
@@ -258,7 +276,13 @@ function QuickLink({ title, body, onClick }: { title: string; body: string; onCl
 
 function ListingTable({ items, approve, reject, pause, archive, feature, unfeature }: { items: Listing[]; reason: string; approve: (id: string) => void; reject: (id: string) => void; pause: (id: string) => void; archive: (id: string) => void; feature: (id: string) => void; unfeature: (id: string) => void }) {
   if (!items.length) return <EmptyState title="No listings found" body="Adjust filters or wait for new listing activity." />;
-  return <div className="grid gap-3">{items.map((item: AnyRecord) => <div key={item.id} className="grid gap-3 rounded-lg border p-3 md:grid-cols-[96px_1fr_auto] md:items-center"><img src={imageUrl(item as Listing)} alt="" className="h-20 w-24 rounded-md object-cover" /><div><div className="flex flex-wrap items-center gap-2"><p className="font-black">{item.title}</p><Badge tone={item.status === "PENDING_REVIEW" ? "warn" : "ok"}>{lower(item.status)}</Badge></div><p className="mt-1 text-sm text-slate-600">{item.city} · {item.propertyType} · {item.owner?.email ?? "No owner"}</p><p className="mt-1 text-xs text-slate-500">{item._count?.views ?? 0} views · {item._count?.favourites ?? 0} saved · {item._count?.leads ?? 0} leads · {item._count?.reports ?? 0} reports</p>{!item.energyCertificate && <p className="mt-1 flex items-center gap-1 text-xs font-bold text-amber-700"><AlertTriangle size={14} />Missing energy certificate data where applicable</p>}</div><div className="flex flex-wrap justify-start gap-2 md:justify-end"><Button variant="outline" onClick={() => window.open(`/property/${item.slug}`, "_blank", "noopener,noreferrer")}><Eye size={15} />Preview</Button>{item.status === "PENDING_REVIEW" && <Button onClick={() => approve(item.id)}><Check size={15} />Approve</Button>}<Button variant="outline" onClick={() => reject(item.id)}><X size={15} />Reject</Button><Button variant="outline" onClick={() => pause(item.id)}><Ban size={15} />Pause</Button><Button variant="outline" onClick={() => archive(item.id)}><Archive size={15} />Archive</Button>{item.featuredUntil ? <Button variant="ghost" onClick={() => unfeature(item.id)}><Star size={15} />Unfeature</Button> : <Button variant="ghost" onClick={() => feature(item.id)}><Star size={15} />Feature</Button>}</div></div>)}</div>;
+  return <div className="grid gap-3">{items.map((item: AnyRecord) => <div key={item.id} className="grid gap-3 rounded-lg border p-3 md:grid-cols-[96px_1fr_auto] md:items-center"><SafeListingImage listing={item as Listing} /><div><div className="flex flex-wrap items-center gap-2"><p className="font-black">{item.title}</p><Badge tone={item.status === "PENDING_REVIEW" ? "warn" : "ok"}>{lower(item.status)}</Badge></div><p className="mt-1 text-sm text-slate-600">{item.city} · {item.propertyType} · {item.owner?.email ?? "No owner"}</p><p className="mt-1 text-xs text-slate-500">{item._count?.views ?? 0} views · {item._count?.favourites ?? 0} saved · {item._count?.leads ?? 0} leads · {item._count?.reports ?? 0} reports</p>{!item.energyCertificate && <p className="mt-1 flex items-center gap-1 text-xs font-bold text-amber-700"><AlertTriangle size={14} />Missing energy certificate data where applicable</p>}</div><div className="flex flex-wrap justify-start gap-2 md:justify-end"><Button variant="outline" onClick={() => window.open(`/property/${item.slug}`, "_blank", "noopener,noreferrer")}><Eye size={15} />Preview</Button>{item.status === "PENDING_REVIEW" && <Button onClick={() => approve(item.id)}><Check size={15} />Approve</Button>}<Button variant="outline" onClick={() => reject(item.id)}><X size={15} />Reject</Button><Button variant="outline" onClick={() => pause(item.id)}><Ban size={15} />Pause</Button><Button variant="outline" onClick={() => archive(item.id)}><Archive size={15} />Archive</Button>{item.featuredUntil ? <Button variant="ghost" onClick={() => unfeature(item.id)}><Star size={15} />Unfeature</Button> : <Button variant="ghost" onClick={() => feature(item.id)}><Star size={15} />Feature</Button>}</div></div>)}</div>;
+}
+
+function SafeListingImage({ listing }: { listing: Listing }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return <div className="flex h-20 w-24 items-center justify-center rounded-md bg-slate-100 text-xs font-bold text-slate-500">No image</div>;
+  return <img src={imageUrl(listing)} alt="" className="h-20 w-24 rounded-md bg-slate-100 object-cover" onError={() => setFailed(true)} />;
 }
 
 function DataTable({ headers, rows }: { headers: string[]; rows: React.ReactNode[][] }) {
@@ -277,7 +301,23 @@ function Badge({ children, tone = "neutral" }: { children: React.ReactNode; tone
 
 function Status({ label, value }: { label: string; value: string }) {
   const good = /healthy|present|configured|enabled|redacted|true/i.test(value);
-  return <div className="rounded-md border bg-white p-3"><p className="text-xs font-bold uppercase text-slate-500">{label}</p><p className={cls("mt-1 font-black", good ? "text-emerald-700" : "text-amber-700")}>{value}</p></div>;
+  return <div className="min-w-0 rounded-md border bg-white p-3"><p className="text-xs font-bold text-slate-500">{label}</p><p className={cls("mt-1 break-words font-black", good ? "text-emerald-700" : "text-amber-700")}>{value}</p></div>;
+}
+
+function friendlyLabel(key: string) {
+  const last = key.split(".").pop() ?? key;
+  if (friendlyLabels[last]) return friendlyLabels[last];
+  return last.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function displayValue(key: string, value: unknown) {
+  if (value === "" || value === null || value === undefined) return "Not configured";
+  if (Array.isArray(value)) return value.join(", ");
+  const text = String(value);
+  if (text === "PLACEHOLDER_OR_NOT_CONFIGURED") return "Placeholder / not configured";
+  if (text === "disabled_no_approved_ops_control_system") return "Disabled - no approved ops control";
+  if (key.toLowerCase().includes("email") && !text.trim()) return "Not configured";
+  return text.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function metric(data: unknown, key: string) {

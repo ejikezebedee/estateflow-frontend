@@ -15,7 +15,7 @@ export function Home() {
       <section className="bg-[linear-gradient(120deg,rgba(15,118,110,.92),rgba(16,32,39,.78)),url('https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1800&q=80')] bg-cover bg-center">
         <div className="mx-auto max-w-7xl px-4 py-20 text-white md:py-28">
           <h1 className="max-w-3xl text-4xl font-black md:text-6xl">Homes, leads, and listings flowing in one place.</h1>
-          <p className="mt-5 max-w-2xl text-lg text-white/90">EstateFlow connects seekers, landlords, agents, and moderators through Emeka's real-estate backend.</p>
+          <p className="mt-5 max-w-2xl text-lg text-white/90">ZebeEstate connects seekers, landlords, agents, and moderators through a secure real-estate marketplace.</p>
           <div className="mt-8 max-w-5xl text-ink"><SearchBar /></div>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link to="/search"><Button variant="accent">Search properties<ArrowRight size={16} /></Button></Link>
@@ -42,7 +42,7 @@ export function Home() {
           {[["Verified accounts", ShieldCheck], ["Clear process", CheckCircle2], ["Fast search", ArrowRight]].map(([label, Icon]) => <Card key={String(label)} className="p-6"><Icon className="text-sea" /><h3 className="mt-4 font-black">{String(label)}</h3><p className="mt-2 text-sm text-slate-600">Built around real backend actions, guarded dashboards, and accessible forms.</p></Card>)}
         </section>
       </Shell>
-      <footer className="border-t bg-white px-4 py-8 text-center text-sm text-slate-600">EstateFlow · Original real-estate marketplace frontend</footer>
+      <footer className="border-t bg-white px-4 py-8 text-center text-sm text-slate-600">ZebeEstate · Real-estate marketplace</footer>
     </>
   );
 }

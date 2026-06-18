@@ -1,7 +1,7 @@
 import { getToken, setSession } from "./auth";
 import type { ApiErrorPayload, Listing, MessageThread, Paged, SavedSearch, User } from "./types";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000/api/v1";
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "https://api.zebeestate.com/api/v1";
 
 export class ApiError extends Error {
   status: number;

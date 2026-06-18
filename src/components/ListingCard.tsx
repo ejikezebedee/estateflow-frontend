@@ -1,5 +1,6 @@
 import { Heart, MapPin, Ruler, BedDouble } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api, areaOf, imageUrl, priceOf } from "../lib/api";
 import { euro } from "../lib/format";
@@ -8,6 +9,7 @@ import { Button, Card } from "./ui";
 
 export function ListingCard({ listing }: { listing: Listing }) {
   const queryClient = useQueryClient();
+  const [imageFailed, setImageFailed] = useState(false);
   const fav = useMutation({
     mutationFn: () => api.saveFavourite(listing.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["favourites"] })
@@ -16,7 +18,13 @@ export function ListingCard({ listing }: { listing: Listing }) {
   return (
     <Card className="lift overflow-hidden">
       <div className="grid md:grid-cols-[230px_1fr]">
-        <Link to={`/property/${listing.slug}`} className="block min-h-56 bg-cover bg-center" style={{ backgroundImage: `url(${imageUrl(listing)})` }} aria-label={listing.title} />
+        <Link to={`/property/${listing.slug}`} className="block min-h-56 bg-slate-100" aria-label={listing.title}>
+          {imageFailed ? (
+            <div className="flex h-full min-h-56 items-center justify-center text-sm font-bold text-slate-500">No image available</div>
+          ) : (
+            <img src={imageUrl(listing)} alt="" className="h-full min-h-56 w-full object-cover" onError={() => setImageFailed(true)} />
+          )}
+        </Link>
         <div className="p-5">
           <div className="flex items-start justify-between gap-3">
             <div>

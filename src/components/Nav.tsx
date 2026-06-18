@@ -19,13 +19,13 @@ export function Nav() {
     ["/search", "Search", true],
     ["/dashboard", "Dashboard", !!user],
     ["/provider", "Provider", user?.role === "landlord" || user?.role === "agent" || user?.role === "admin"],
-    ["/admin", "Admin", user?.role === "admin"]
+    ["/zebeclaw", "ZebeClaw", user?.role === "admin"]
   ] as const;
 
   return (
     <header className="sticky top-0 z-40 border-b bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        <Link to="/" className="flex items-center gap-2 text-lg font-black text-sea"><Building2 />EstateFlow</Link>
+        <Link to="/" className="flex items-center gap-2 text-lg font-black text-sea"><Building2 />ZebeEstate</Link>
         <nav className="hidden items-center gap-5 md:flex">
           {links.filter((item) => item[2]).map(([href, label]) => <NavLink key={href} className="text-sm font-semibold text-slate-700 hover:text-sea" to={href}>{label}</NavLink>)}
         </nav>

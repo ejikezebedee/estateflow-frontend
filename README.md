@@ -1,16 +1,16 @@
-# EstateFlow Frontend
+# ZebeEstate Frontend
 
-Vite + React + TypeScript frontend for the EstateFlow real-estate marketplace.
+Vite + React + TypeScript frontend for the ZebeEstate real-estate marketplace.
 
 ## Backend
 
 Expected backend API:
 
 ```bash
-VITE_API_BASE_URL=http://localhost:3001/api/v1
+VITE_API_BASE_URL=https://api.zebeestate.com/api/v1
 ```
 
-The frontend is verified against the EstateFlow backend running on port 3001.
+The production frontend is verified against the ZebeEstate API at `https://api.zebeestate.com/api/v1`.
 
 ## Run
 
@@ -38,16 +38,9 @@ http://localhost:5173
 - `/dashboard`
 - `/dashboard/listings/new`
 - `/provider`
-- `/admin`
+- `/zebeclaw`
 
-## Seed Accounts
-
-Use password `Password123!` when Emeka's backend is running:
-
-- `seeker@example.com`
-- `landlord@example.com`
-- `agent@example.com`
-- `admin@example.com`
+The old `/admin` route intentionally returns a not-found page and does not reveal or redirect to the protected admin dashboard.
 
 ## Notes
 
