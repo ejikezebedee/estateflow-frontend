@@ -114,10 +114,23 @@ export const api = {
   providerDashboard: () => request<Record<string, unknown>>("/provider/dashboard"),
   providerListings: () => request<Paged<Listing> | Listing[]>("/provider/listings"),
   adminMetrics: () => request<Record<string, unknown>>("/admin/metrics"),
+  adminUsers: (params = new URLSearchParams()) => request<Paged<Record<string, unknown>> | Record<string, unknown>[]>(`/admin/users?${params.toString()}`),
+  adminListings: (params = new URLSearchParams()) => request<Paged<Listing> | Listing[]>(`/admin/listings?${params.toString()}`),
   adminPendingListings: () => request<Paged<Listing> | Listing[]>("/admin/listings/pending"),
   approveListing: (id: string) => request<void>(`/admin/listings/${id}/approve`, { method: "POST" }),
   rejectListing: (id: string, reason: string) => request<void>(`/admin/listings/${id}/reject`, { method: "POST", body: JSON.stringify({ reason }) }),
-  adminReports: () => request<Paged<Record<string, unknown>> | Record<string, unknown>[]>("/admin/reports")
+  pauseListing: (id: string, reason?: string) => request<void>(`/admin/listings/${id}/pause`, { method: "POST", body: JSON.stringify({ reason }) }),
+  archiveListing: (id: string, reason?: string) => request<void>(`/admin/listings/${id}/archive`, { method: "POST", body: JSON.stringify({ reason }) }),
+  restoreListing: (id: string) => request<void>(`/admin/listings/${id}/restore`, { method: "POST" }),
+  featureListing: (id: string, endsAt?: string) => request<void>(`/admin/listings/${id}/feature`, { method: "POST", body: JSON.stringify({ endsAt }) }),
+  unfeatureListing: (id: string) => request<void>(`/admin/listings/${id}/feature`, { method: "DELETE" }),
+  setUserStatus: (id: string, status: string) => request<void>(`/admin/users/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
+  setUserRole: (id: string, role: string) => request<void>(`/admin/users/${id}/role`, { method: "PATCH", body: JSON.stringify({ role }) }),
+  adminReports: () => request<Paged<Record<string, unknown>> | Record<string, unknown>[]>("/admin/reports"),
+  resolveReport: (id: string, outcome: string) => request<void>(`/admin/reports/${id}/resolve`, { method: "PATCH", body: JSON.stringify({ outcome }) }),
+  adminAuditLogs: () => request<Record<string, unknown>[]>("/admin/audit-logs"),
+  adminSystemHealth: () => request<Record<string, unknown>>("/admin/system-health"),
+  adminSettings: () => request<Record<string, unknown>>("/admin/settings")
 };
 
 export function imageUrl(listing: Listing) {
